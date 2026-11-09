@@ -1,0 +1,51 @@
+{
+  "manifest_version": 3,
+  "name": "Coffre",
+  "version": "1.0.0",
+  "description": "Gestionnaire de mots de passe local et chiffré : import CSV, remplissage sur demande, enregistrement.",
+  "action": {
+    "default_title": "Ouvrir le coffre",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "storage",
+    "alarms"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "commands": {
+    "fill": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+L"
+      },
+      "description": "Remplir avec un identifiant du coffre"
+    }
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none'"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

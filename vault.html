@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Coffre</title>
+  <link rel="stylesheet" href="vault.css">
+</head>
+<body>
+  <main>
+    <section id="setup" class="gate" hidden>
+      <h1>Coffre</h1>
+      <p class="lede">Choisis un mot de passe maître. Il chiffre tout le registre et <strong>ne peut pas être récupéré</strong> s'il est perdu.</p>
+      <label class="field">Mot de passe maître, 12 caractères minimum
+        <input id="m1" type="password" autocomplete="new-password">
+      </label>
+      <label class="field">Confirmation
+        <input id="m2" type="password" autocomplete="new-password">
+      </label>
+      <label class="check"><input id="stay-setup" type="checkbox" checked>Rester déverrouillé jusqu'à ce que je verrouille moi-même</label>
+      <div class="actions"><button id="create" class="primary">Créer le coffre</button></div>
+    </section>
+
+    <section id="locked" class="gate" hidden>
+      <h1>Coffre</h1>
+      <p class="lede">Le registre est fermé.</p>
+      <label class="field">Mot de passe maître
+        <input id="mu" type="password" autocomplete="current-password">
+      </label>
+      <label class="check"><input id="stay-unlock" type="checkbox" checked>Rester déverrouillé jusqu'à ce que je verrouille moi-même</label>
+      <div class="actions"><button id="unlock" class="primary">Ouvrir le coffre</button></div>
+    </section>
+
+    <section id="app" hidden>
+      <header class="top">
+        <div class="title">
+          <h1>Coffre</h1>
+          <p id="count" class="muted" aria-live="polite"></p>
+        </div>
+        <nav class="tools" aria-label="Actions du coffre">
+          <button id="add" class="primary">Nouvelle fiche</button>
+          <button id="import">Importer un CSV</button>
+          <button id="settings">Réglages</button>
+          <button id="lock">Verrouiller</button>
+        </nav>
+        <input id="file" type="file" accept=".csv,text/csv" hidden>
+      </header>
+
+      <div id="ledger" class="ledger" data-view="list" aria-busy="true">
+        <aside class="index" aria-label="Index des fiches">
+          <div class="search">
+            <label class="sr" for="q">Rechercher une fiche</label>
+            <input id="q" type="search" placeholder="Rechercher un site ou un identifiant" autocomplete="off" spellcheck="false">
+          </div>
+          <div id="list" class="list"></div>
+        </aside>
+
+        <section id="folio" class="folio" aria-label="Fiche ouverte"></section>
+      </div>
+    </section>
+
+    <p id="msg" role="status"></p>
+  </main>
+
+  <dialog id="dlg" aria-labelledby="dtitle">
+    <form id="form" method="dialog">
+      <h2 id="dtitle">Nouvelle fiche</h2>
+      <label class="field">Nom
+        <input id="f-name" autocomplete="off">
+      </label>
+      <label class="field">Adresse du site
+        <input id="f-url" placeholder="https://exemple.fr" autocomplete="off" inputmode="url">
+      </label>
+      <label class="field">Identifiant
+        <input id="f-user" autocomplete="off" spellcheck="false">
+      </label>
+      <div class="field">
+        <label for="f-pass">Mot de passe</label>
+        <div class="pw">
+          <input id="f-pass" type="password" autocomplete="off" spellcheck="false">
+          <button type="button" id="f-show">Afficher</button>
+          <button type="button" id="f-gen">Générer</button>
+        </div>
+      </div>
+      <label class="field">Note
+        <textarea id="f-note" rows="3"></textarea>
+      </label>
+      <div class="actions">
+        <button type="button" id="f-cancel">Annuler</button>
+        <button type="submit" class="primary">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="sdlg" aria-labelledby="stitle">
+    <h2 id="stitle">Réglages</h2>
+
+    <section class="block">
+      <h3>Verrouillage</h3>
+      <label class="check"><input id="s-stay" type="checkbox">Rester déverrouillé jusqu'à ce que je verrouille moi-même</label>
+      <p class="muted small">La clé de chiffrement est alors gardée sur ce disque, y compris après un redémarrage du navigateur. Quiconque accède à ton profil peut lire le coffre. Le bouton Verrouiller l'efface.</p>
+      <label class="field">Sinon, verrouiller automatiquement
+        <select id="s-auto">
+          <option value="5">après 5 minutes</option>
+          <option value="15">après 15 minutes</option>
+          <option value="60">après 1 heure</option>
+          <option value="0">à la fermeture du navigateur seulement</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="block">
+      <h3>Mot de passe maître</h3>
+      <label class="field">Actuel<input id="s-old" type="password" autocomplete="current-password"></label>
+      <label class="field">Nouveau, 12 caractères minimum<input id="s-new" type="password" autocomplete="new-password"></label>
+      <label class="field">Confirmation<input id="s-new2" type="password" autocomplete="new-password"></label>
+      <div class="actions"><button id="s-change">Changer le mot de passe</button></div>
+    </section>
+
+    <section class="block">
+      <h3>Sauvegarde</h3>
+      <p class="muted small">Une sauvegarde reste chiffrée : elle ne se lit qu'avec le mot de passe maître en vigueur au moment où elle a été faite.</p>
+      <div class="actions left"><button id="s-export">Télécharger une sauvegarde chiffrée</button></div>
+      <label class="field">Restaurer, avec le mot de passe maître de la sauvegarde
+        <input id="s-rpass" type="password" autocomplete="off">
+      </label>
+      <div class="actions left"><button id="s-restore">Choisir un fichier de sauvegarde</button></div>
+      <input id="s-rfile" type="file" accept=".json,application/json" hidden>
+      <div class="actions left"><button id="s-csv" class="danger">Exporter en CSV (mots de passe en clair)</button></div>
+    </section>
+
+    <section class="block">
+      <h3>Sites ignorés</h3>
+      <p id="s-never" class="muted small"></p>
+      <div class="actions left"><button id="s-never-reset">Tout réactiver</button></div>
+    </section>
+
+    <p id="s-msg" role="status"></p>
+    <div class="actions"><button id="s-close" class="primary">Fermer</button></div>
+  </dialog>
+
+  <script type="module" src="vault.js"></script>
+</body>
+</html>
